@@ -1,13 +1,11 @@
-import { ReactNode } from "react";
+import { DetailedHTMLProps, HTMLAttributes, ReactNode } from "react";
 
-interface IProps {
-    children?: ReactNode
-}
+interface IProps extends DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> { }
 
-export function Card({ children }: IProps){
+export function Card({ ...props }: IProps) {
     return (
-        <div className="bg-white border border-gray-300 rounded-lg shadow-md p-6">
-            {children}
-        </div>
+        <div
+            {...props}
+            className={"bg-white border-2 rounded-md p-4 border-none ".concat(props?.className || "")} />
     )
 }

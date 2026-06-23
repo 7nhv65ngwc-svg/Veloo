@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/app/components/button"
-import { useCart } from "@/app/context/cart.context"
+import { useCart } from "@/app/contexts/cart.context"
 import { CATEGORIES } from "@/app/mocks/categories"
 import Link from "next/link"
 import { ReactNode, useState } from "react"
@@ -159,7 +159,7 @@ export function Header() {
             {/* MENU LATERAL */}
             <section className={`absolute h-svh bg-white shadow-lg rounded-tr-md rounded-br-md transition-all duration-700 ease-in-out ${show ? "w-50" : "w-0"}`}>
                 <div className="relative h-full">
-                    {show && (<button type="button" onClick={() => setShow(false)} className="absolute -right-3 top-2 bg-[] flex items-center justify-center text-white h-6 w-6 rounded-md cursor-pointer hover:text-[#012E40] shadow-lg">
+                    {show && (<button type="button" onClick={() => setShow(false)} className="absolute -right-3 top-2 bg-[#ea580c] flex items-center justify-center text-white h-6 w-6 rounded-md cursor-pointer hover:text-[#ea580c] shadow-lg">
                         <IoClose />
                     </button>)}
 

@@ -1,4 +1,5 @@
 interface IProduct {
+    rating: number;
     readonly id: number,
     name: string,
     categoryID: number,
