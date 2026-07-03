@@ -17,7 +17,7 @@ function HeaderButton({ children, onClick, notification, className }: {
     className?: string
 }) {
     return (
-        <Button onClick={onClick} className={"relative h-6 w-6 hover:bg-[black] hover:text-[red] cursor-pointer rounded-md flex items-center justify-center ".concat(className||"")}>
+        <Button onClick={onClick} className={"relative h-6 w-6 hover:bg-[black] hover:text-[red] cursor-pointer rounded-md flex items-center justify-center ".concat(className || "")}>
             {
                 notification &&
                 notification > 0 &&
@@ -192,7 +192,7 @@ export function Header() {
                         } />
                         <SidebarList keyItem="category-lat" label="Categorias" data={
                             CATEGORIES
-                                .slice(0, 5)
+
                                 .sort((a, b) => a.name.localeCompare(b.name))
                                 .map((vl) => ({
                                     id: vl.id,

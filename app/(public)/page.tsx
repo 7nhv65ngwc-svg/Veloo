@@ -30,19 +30,22 @@ function Item({ data }: { data: IProduct }) {
   return (
     <Card>
       <Link href={href} className="group transition-all ease-in-out duration-300">
-        <div className="mb-2 text-slate-200 rounded-lg overflow-hidden flex items-center justify-center">
+        <div style={{
+          height: 125,
+          width: 125
+        }} className="mb-2 relative text-slate-200 rounded-lg overflow-hidden flex items-center justify-center">
           {
             data.photo ? <Image
               alt={data.name}
               src={data.photo}
-              height={104}
-              width={104}
+
+              fill
             /> : <MdHideImage size={60} />
           }
         </div>
         <div>
-          <div className="text-[12px] font-bold group-hover:text-[#ea580c]">{data.name}</div>
-          <div className="text-[10px] text-slate-400 group-hover:text-[#ea580c]">
+          <div className="text-[10px] font-bold group-hover:text-[#ea580c]">{data.name}</div>
+          <div className="text-[10px] text-slate-100 group-hover:text-[#ea580c]">
             {
               category?.name || "Não Identificado"
             }

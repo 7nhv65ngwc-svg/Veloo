@@ -6,15 +6,21 @@ import { login, LoginError } from "@/app/actions/login";
 import Link from "next/link";
 import { useActionState, useEffect } from "react"
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const initialState: FormState<LoginError> = { success: false }
 
 export default function Page() {
     const [state, formAction, isPending] = useActionState(login, initialState)
+    const router = useRouter()
 
     useEffect(() => {
         if (state.success) {
             toast.success(state.message || "Login realizado com sucesso!")
+            setTimeout(() => {
+                router.push("/")
+            }, 2000)
+
         } else if (state.errors || state.message) {
             let message: string | undefined
 
