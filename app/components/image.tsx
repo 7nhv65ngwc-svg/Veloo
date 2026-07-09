@@ -27,6 +27,7 @@ export function Image({ alt, src, width, height, size }: IProps) {
                     src={src}
                     onError={() => setError(true)}
                     fill
+                    objectFit="contain"
                 /> : <MdHideImage size={size} />
             }
         </div>
