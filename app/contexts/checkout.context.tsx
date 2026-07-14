@@ -12,8 +12,8 @@ import { useCart } from "./cart.context";
 
 interface IContext {
   cart: ICart;
-  address: IAddress | null;
-  setAddress: Dispatch<SetStateAction<IAddress | null>>;
+  address: IAddres | null;
+  setAddress: Dispatch<SetStateAction<IAddres | null>>;
   payment: {
     cardNumber: string;
     setCardNumber: Dispatch<SetStateAction<string>>;
@@ -39,7 +39,7 @@ interface IProps {
 
 export function CheckoutProvider({ children }: IProps) {
   const { cart } = useCart();
-  const [address, setAddress] = useState<IAddress | null>(null);
+  const [address, setAddress] = useState<IAddres | null>(null);
   const [cardNumber, setCardNumber] = useState<string>("");
   const [cardholder, setCardholder] = useState<string>("");
   const [expirationDate, setExpirationDate] = useState<string>("");

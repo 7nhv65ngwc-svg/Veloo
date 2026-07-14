@@ -80,7 +80,7 @@ export function SideCart({ show, setShow }: IProps) {
         {show && (
           <button
             onClick={() => setShow(false)}
-            className="absolute -left-3 top-2 bg-[#00BC99] flex items-center justify-center text-white h-6 w-6 rounded-md cursor-pointer hover:text-[#012E40] shadow-lg"
+            className="absolute -left-3 top-2 bg-red-600 flex items-center justify-center text-white h-6 w-6 rounded-md cursor-pointer hover:text-[BLACK] shadow-lg"
           >
             <IoClose />
           </button>
@@ -97,7 +97,7 @@ export function SideCart({ show, setShow }: IProps) {
           </ul>
         </div>
 
-        <div className="bg-[#012E40] overflow-hidden h-18 w-full text-white p-2">
+        <div className="bg-[BLACK] overflow-hidden h-18 w-full text-white p-2">
           <div className="text-right text-lg font-bold flex flex-row justify-end gap-2">
             <div className="text-[10px]">R$</div>
             {cart.total.toLocaleString("pt-br", {
@@ -108,7 +108,7 @@ export function SideCart({ show, setShow }: IProps) {
           {(cart.total > 0 || cart.products.length > 0) && (
             <Link
               href={"/checkout"}
-              className="bg-[#00BC99] p-2 rounded-lg text-[10px] w-full"
+              className="bg-red-600 p-2 rounded-lg text-[10px] w-full"
             >
               Finalizar
             </Link>

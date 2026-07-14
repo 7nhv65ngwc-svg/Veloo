@@ -3,6 +3,7 @@
 import { Button } from "@/app/components/button";
 import { Image } from "@/app/components/image";
 import { useCart } from "@/app/contexts/cart.context";
+import { useCheckout } from "@/app/contexts/checkout.context";
 
 interface OverviewStepProps {
   setStep: () => void;
@@ -18,22 +19,13 @@ export default function OverviewStep({
   goToPaymentStep,
 }: OverviewStepProps) {
   const { cart, payment } = useCart();
-
-  const deliveryAddress = {
-    street: "Av. Paulista",
-    number: "1000",
-    complement: "Apto 42",
-    neighborhood: "Bela Vista",
-    city: "São Paulo",
-    state: "SP",
-    cep: "01310-100",
-  };
+  const {address} = useCheckout();
 
   const paymentMethod = {
     type: "Cartão de Crédito",
     details: payment?.cardNumber
-      ? `Finalizado em ${payment.cardNumber.slice(-4)}`
-      : "Finalizado em 5455",
+      ? `Final ${payment.cardNumber.slice(-4)}`
+      : "Final ",
     installments: payment?.installment
       ? `${payment.installment}x de ${((cart?.total || 0) / payment.installment).toLocaleString("pt-br", { style: "currency", currency: "BRL" })}`
       : "1x de R$ 0,00",
@@ -47,7 +39,6 @@ export default function OverviewStep({
 
   return (
     <div className="p-4 flex flex-col gap-4 max-w-4xl mx-auto w-full text-slate-800">
-      {/* RETORNO / VOLTAR */}
       <div className="border-b border-slate-200 pb-3 w-full flex flex-col gap-2 items-start">
         <Button type="button" onClick={goBack} className={smallButtonClass}>
           ← Voltar
@@ -68,15 +59,15 @@ export default function OverviewStep({
             Endereço de entrega
           </h3>
           <p className="text-sm text-slate-600">
-            {deliveryAddress.street}, {deliveryAddress.number}{" "}
-            {deliveryAddress.complement && `- ${deliveryAddress.complement}`}
+            {address?.publicPlace}, { address?.number}{" "}
+            {address?.complement && `- ${ address?.complement}`}
           </p>
           <p className="text-xs text-slate-500">
-            {deliveryAddress.neighborhood} - {deliveryAddress.city}/
-            {deliveryAddress.state}
+            { address?.neighborhood} - { address?.city}/
+            { address?.state}
           </p>
           <p className="text-xs text-slate-400 mt-1">
-            CEP: {deliveryAddress.cep}
+            CEP: { address?.zipcode}
           </p>
         </div>
         <div className="flex justify-end items-center">

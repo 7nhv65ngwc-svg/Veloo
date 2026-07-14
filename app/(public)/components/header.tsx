@@ -5,12 +5,19 @@ import { useCart } from "@/app/contexts/cart.context";
 import { CATEGORIES } from "@/app/mocks/categories";
 import Link from "next/link";
 import { ReactNode, useState } from "react";
-import { FaAngleRight, FaMinus, FaPlus, FaUserCircle } from "react-icons/fa";
+import {
+  FaAngleRight,
+  FaMinus,
+  FaPlus,
+  FaUserCircle,
+  FaSearch,
+} from "react-icons/fa";
 import { HiMenu } from "react-icons/hi";
 import { IoCart, IoClose, IoTrash } from "react-icons/io5";
 import { MdFavorite, MdHideImage } from "react-icons/md";
 import { SideCart } from "./side-cart";
 import { useAuth } from "@/app/contexts/auth.context";
+import { useRouter } from "next/navigation";
 
 function HeaderButton({
   children,
@@ -38,12 +45,18 @@ function HeaderButton({
   );
 }
 
-function SidebarItem({ href, label }: { href: string; label: string }) {
+function SidebarItem({ label }: { href: string; label: string }) {
+  const slug = label
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "-");
+
   return (
-    <Link href={href}>
-      <li className="flex flex-row items-center gap-2 justify-between hover:bg-gray-50 hover:text-gree curso-pointer px-2 py-1.5 border-b border-slate-200">
+    <Link href={`/${slug}`}>
+      <li className="flex flex-row items-center gap-2 justify-between hover:bg-gray-50 text-neutral-600 font-sans text-sm font-medium cursor-pointer px-2 py-2 border-b border-slate-100 transition-colors hover:text-black">
         {label}
-        <FaAngleRight />
+        <FaAngleRight className="text-slate-400" size={14} />
       </li>
     </Link>
   );
@@ -59,8 +72,10 @@ function SidebarList({
   data: Array<{ id: number; label: string; href: string }>;
 }) {
   return (
-    <ul className="text-[10px] text-slate-600 px-2">
-      <label className="font-bolt text-[11px] mb-2">{label}</label>
+    <ul className="text-sm font-sans px-2 mt-3">
+      <label className="font-bold text-xs text-black uppercase tracking-wider block mb-2 px-2">
+        {label}
+      </label>
       {data.map((vl) => (
         <SidebarItem
           key={`${keyItem}-${vl.id}`}
@@ -116,7 +131,7 @@ function CartItem({
             <div className="flex flex-row items-center">
               <button
                 onClick={() => remove({ ...data, amount: 1 })}
-                className="flex items-center justify-center w-4 h-4 rounded-l-md bg-[black] text-white cursor-pointer hover:bg-[#ea580c] hover:text-[black]"
+                className="flex items-center justify-center w-4 h-4 rounded-l-md bg-[black] text-white cursor-pointer hover:bg-[#EA580C] hover:text-[black]"
               >
                 <FaMinus size={6} />
               </button>
@@ -125,7 +140,7 @@ function CartItem({
               </div>
               <button
                 onClick={() => add({ ...data, amount: 1 })}
-                className="flex items-center justify-center w-4 h-4 rounded-r-md bg-[black] text-white cursor-pointer hover:bg-[#ea580c] hover:text-[black]"
+                className="flex items-center justify-center w-4 h-4 rounded-r-md bg-[black] text-white cursor-pointer hover:bg-[#EA580C] hover:text-[black]"
               >
                 <FaPlus size={6} />
               </button>
@@ -147,28 +162,57 @@ function CartItem({
 export function Header() {
   const [show, setShow] = useState<boolean>(false);
   const [showCart, setShowCart] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const { cart, add, remove } = useCart();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim() !== "") {
+      router.push(`/produtos?search=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
 
   return (
     <>
       {/* CABEÇALHO */}
       <header className="w-full">
-        <div className="h-10 bg-[#ea580c] text-white flex flex-row items-center gap-2 px-2">
-          <div className="h-full flex-1 flex flex-row items-center gap-2">
+        <div className="h-15 bg-gradient-to-r from-[#012E40] via-[#024959] to-[#EA580C] text-white flex flex-row items-center justify-between gap-4 px-3 shadow-md">
+          <div className="flex flex-row items-center gap-2 min-w-[100px]">
             <HeaderButton onClick={() => setShow(true)}>
               <HiMenu />
             </HeaderButton>
             <Link
               href={"/"}
-              className="bg-[#ea580c] hover:bg-black text-[15px] font-semibold rounded-lg px-2 py-1"
+              className="hover:bg-black text-[20px] font-semibold rounded-lg px-2 py-1"
             >
               <h1>vello</h1>
             </Link>
           </div>
-          <div className="h-full flex-1 flex flex-row justify-end items-center gap-2 p-2">
+
+          <form
+            onSubmit={handleSearchSubmit}
+            className="flex-1 max-w-md relative flex items-center"
+          >
+            <input
+              type="text"
+              placeholder="O que você está procurando hoje?"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full h-8 bg-white text-slate-800 text-xs px-3 pr-9 rounded-md outline-none focus:ring-1 focus:ring-white transition-all placeholder:text-slate-400 font-sans font-medium shadow-inner"
+            />
+            <button
+              type="submit"
+              className="absolute right-2.5 text-slate-400 hover:text-[#EA580C] transition-colors cursor-pointer"
+            >
+              <FaSearch size={13} />
+            </button>
+          </form>
+
+          <div className="flex flex-row items-center gap-2 min-w-[100px] justify-end">
             {/* FAVORITOS */}
-            <HeaderButton>
+            <HeaderButton onClick={() => router.push("/favoritos")}>
               <MdFavorite />
             </HeaderButton>
             {/* CARRINHO */}
@@ -183,57 +227,59 @@ export function Header() {
               <IoCart />
             </HeaderButton>
 
-            {/* LOGIN */}
             {user ? (
-              <HeaderButton>
-                <FaUserCircle />
-              </HeaderButton>
+              <div className="flex items-center gap-2">
+                <HeaderButton>
+                  <FaUserCircle />
+                </HeaderButton>
+                <button
+                  onClick={logout}
+                  className="bg-black text-white hover:text-[#ea580c] text-[10px] font-bold px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+                >
+                  Sair
+                </button>
+              </div>
             ) : (
               <Link
                 href="/login"
-                className="bg-[#ea580c] hover:bg-[black] text-[10px] font-semibold rounded-lg px-4 py-1"
+                className="bg-black/20 hover:bg-[black] text-[10px] font-semibold rounded-lg px-4 py-1"
               >
                 Login
               </Link>
             )}
           </div>
         </div>
+
         <div className="bg-[black] text-white w-full">
-          <ul className="flex flex-row justify-center flex-wrap items-center text-[10px] text-center">
-            {CATEGORIES.filter((vl) => vl.highlights)
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((vl) => (
-                <Link key={`category-${vl.id}`} href={vl.path}>
-                  <li className="px-2 hover:bg-[#ea580c] h-6 flex items-center justify-center">
+          <ul className="flex flex-row justify-center flex-wrap items-center text-sm font-sans font-medium text-center">
+            {CATEGORIES.filter((vl) => vl.highlights).map((vl) => {
+              const itemSlug = vl.name
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "-");
+
+              return (
+                <Link key={`category-${vl.id}`} href={`/${itemSlug}`}>
+                  <li className="px-3.5 hover:bg-gradient-to-r hover:from-[#012E40] hover:via-[#024959] hover:to-[#EA580C] h-8 flex items-center justify-center transition-colors cursor-pointer">
                     {vl.name}
                   </li>
                 </Link>
-              ))}
+              );
+            })}
           </ul>
         </div>
       </header>
-      <div className="inner-content bg-slate-50 border-b border-slate-200 py-6 px-4 w-full">
-        <div className="left-side max-w-2xl mx-auto flex flex-col gap-1.5 text-left">
-          <h2 className="text-xl font-bold text-slate-800">
-            O mundo de compras se encontra na Vello!
-          </h2>
-          <p className="text-sm text-slate-700 leading-relaxed">
-            Conectamos você às melhores lojas e marcas. Tudo o que você procura,
-            em um só lugar.
-          </p>
-        </div>
-      </div>
 
-      {/* MENU LATERAL */}
       <section
-        className={`z-60 absolute h-svh bg-white shadow-lg rounded-tr-md rounded-br-md transition-all duration-700 ease-in-out ${show ? "w-50" : "w-0"}`}
+        className={`z-60 absolute h-svh bg-white shadow-lg rounded-tr-md rounded-br-md transition-all duration-700 ease-in-out ${show ? "w-64" : "w-0"}`}
       >
         <div className="relative h-full">
           {show && (
             <button
               type="button"
               onClick={() => setShow(false)}
-              className="absolute -right-3 top-2 bg-[#ea580c] flex items-center justify-center text-white h-6 w-6 rounded-md cursor-pointer hover:text-[#ea580c] shadow-lg"
+              className="absolute -right-3 top-2 bg-red-600 flex items-center justify-center text-white h-6 w-6 rounded-md cursor-pointer hover:text-[BLACK] shadow-lg"
             >
               <IoClose />
             </button>
@@ -246,13 +292,29 @@ export function Header() {
               </div>
 
               <div className="h-8 flex-1">
-                <Link
-                  href={"/login"}
-                  className="flex flex-col hover:text-[#ea580c]"
-                >
-                  <span className="text-[10px]">Olá</span>
-                  <span className="text-xs font-bold">Entre com sua conta</span>
-                </Link>
+                {user ? (
+                  <div className="flex flex-col">
+                    <span className="text-[10px]">
+                      Olá, {user.name || "Usuário"}
+                    </span>
+                    <button
+                      onClick={logout}
+                      className="text-left text-xs font-bold text-red-500 hover:text-white transition-colors cursor-pointer"
+                    >
+                      Sair da conta
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href={"/login"}
+                    className="flex flex-col hover:text-[#ea580c]"
+                  >
+                    <span className="text-[10px]">Olá</span>
+                    <span className="text-xs font-bold">
+                      Entre com sua conta
+                    </span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -262,7 +324,7 @@ export function Header() {
               keyItem="seller-lat"
               label="Top 5 Lojistas"
               data={CATEGORIES.slice(0, 5)
-                .sort((a, b) => a.name.localeCompare(b.name))
+
                 .map((vl) => ({
                   id: vl.id,
                   label: vl.name,
@@ -272,13 +334,11 @@ export function Header() {
             <SidebarList
               keyItem="category-lat"
               label="Categorias"
-              data={CATEGORIES.sort((a, b) => a.name.localeCompare(b.name)).map(
-                (vl) => ({
-                  id: vl.id,
-                  label: vl.name,
-                  href: vl.path,
-                }),
-              )}
+              data={CATEGORIES.map((vl) => ({
+                id: vl.id,
+                label: vl.name,
+                href: vl.path,
+              }))}
             />
           </div>
         </div>

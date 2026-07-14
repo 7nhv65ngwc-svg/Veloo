@@ -12,7 +12,7 @@ export default function Layout({ children }: Readonly<IProps>) {
     <CategoryProvider>
       <AuthProvider>
         <Header />
-        <main className="p-2 overflow-auto">{children}</main>
+        <main className=" overflow-auto">{children}</main>
       </AuthProvider>
     </CategoryProvider>
   );

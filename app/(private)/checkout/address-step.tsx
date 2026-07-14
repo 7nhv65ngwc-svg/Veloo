@@ -1,7 +1,9 @@
 "use client";
 
 import { Button } from "@/app/components/button";
+import { useCheckout } from "@/app/contexts/checkout.context";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 interface AddressStepProps {
   setStep: () => void;
@@ -16,16 +18,73 @@ export default function AddressStep({ setStep, goBack }: AddressStepProps) {
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
   const [complemento, setComplemento] = useState("");
+  const [loading, setLoading] = useState(false);
+  const { setAddress } = useCheckout();
+
+  const fetchAddress = async (cleanCep: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cleanCep}/json/`,
+      );
+      const data = await response.json();
+
+      if (data.erro) {
+        toast.error("CEP não encontrado!");
+        setRua("");
+        bairro && setBairro("");
+        setCidade("");
+        setEstado("");
+        return;
+      }
+
+      setRua(data.logradouro || "");
+      setBairro(data.bairro || "");
+      setCidade(data.localidade || "");
+      setEstado(data.uf || "");
+      toast.success("Endereço localizado!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao buscar o CEP.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCepChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/\D/g, "");
+    let maskedValue = rawValue;
+
+    if (rawValue.length > 5) {
+      maskedValue = `${rawValue.slice(0, 5)}-${rawValue.slice(5, 8)}`;
+    }
+
+    setCep(maskedValue);
+
+    if (rawValue.length === 8) {
+      fetchAddress(rawValue);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+    setAddress({
+      city: cidade,
+      complement: complemento,
+      neighborhood: bairro,
+      number: numero,
+      publicPlace: rua,
+      state: estado,
+      zipcode: cep,
+    });
     setStep();
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 flex flex-col gap-4 max-w-md mx-auto"
+      className="p-4 flex flex-col gap-4 max-w-md mx-auto text-slate-800"
     >
       <div>
         <h2 className="text-xl font-bold text-slate-800">
@@ -33,18 +92,27 @@ export default function AddressStep({ setStep, goBack }: AddressStepProps) {
         </h2>
       </div>
 
+      {/* CEP */}
       <div className="flex flex-col gap-1">
-        <label className="text-xs font-semibold text-slate-600">CEP</label>
+        <label className="text-xs font-semibold text-slate-600">
+          CEP{" "}
+          {loading && (
+            <span className="text-orange-500 animate-pulse">(Buscando...)</span>
+          )}
+        </label>
         <input
           type="text"
           placeholder="00000-000"
+          maxLength={9}
           value={cep}
-          onChange={(e) => setCep(e.target.value)}
-          className="border border-slate-200 p-2.5 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-slate-400"
+          onChange={handleCepChange}
+          disabled={loading}
+          className="border border-slate-200 p-2.5 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-slate-400 disabled:opacity-70"
           required
         />
       </div>
 
+      {/* RUA / NÚMERO */}
       <div className="grid grid-cols-3 gap-2">
         <div className="col-span-2 flex flex-col gap-1">
           <label className="text-xs font-semibold text-slate-600">
@@ -72,6 +140,7 @@ export default function AddressStep({ setStep, goBack }: AddressStepProps) {
         </div>
       </div>
 
+      {/* BAIRRO / COMPLEMENTO */}
       <div className="grid grid-cols-2 gap-2">
         <div className="flex flex-col gap-1">
           <label className="text-xs font-semibold text-slate-600">Bairro</label>
@@ -98,6 +167,7 @@ export default function AddressStep({ setStep, goBack }: AddressStepProps) {
         </div>
       </div>
 
+      {/* CIDADE / UF */}
       <div className="grid grid-cols-4 gap-2">
         <div className="col-span-3 flex flex-col gap-1">
           <label className="text-xs font-semibold text-slate-600">Cidade</label>
@@ -124,14 +194,17 @@ export default function AddressStep({ setStep, goBack }: AddressStepProps) {
         </div>
       </div>
 
-      <div className="flex flex-row gap-3 mt-4">
-        <div className="flex-1">
-          <Button type="button" onClick={goBack}>
-            Voltar para o Carrinho
-          </Button>
-        </div>
-        <Button onClick={setStep} className="flex-1">
-          Ir para o Pagamento
+      <div className="flex flex-row gap-3 mt-4 w-full">
+        <Button
+          type="button"
+          onClick={goBack}
+          className="flex-1"
+          disabled={loading}
+        >
+          Voltar
+        </Button>
+        <Button type="submit" className="flex-1" disabled={loading}>
+          {loading ? "Buscando..." : "Avançar"}
         </Button>
       </div>
     </form>

@@ -9,7 +9,11 @@ import {
 } from "react";
 
 interface IAuthContext {
-  user: { id: string } | null;
+  user: {
+    [x: string]: string;
+    id: string;
+  } | null;
+  logout: () => void;
 }
 
 const Context = createContext<IAuthContext>(null!);
@@ -39,12 +43,18 @@ export function AuthProvider({ children }: { children?: ReactNode }) {
       setUser(null);
     }
   };
+  const logout = async () => {
+    await cookieStore.delete("user");
+    getUser()
+  };
 
   useEffect(() => {
     getUser();
   }, []);
 
-  return <Context.Provider value={{ user }}>{children}</Context.Provider>;
+  return (
+    <Context.Provider value={{ user, logout }}>{children}</Context.Provider>
+  );
 }
 
 export function useAuth() {
